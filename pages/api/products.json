@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "name": "Cactus pack",
+    "price": "0.09",
+    "description": "Get this fire Cactus pack for only $0.09! Includes 3 hot emojis: Forreal, Flooshed, and Sheesh!",
+    "image_url": "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/apple/325/cactus_1f335.png",
+    "filename": "Cactus.zip",
+    "hash": "Qmdt1Ls8NbHgifoix8Fxoq6ArGqY3UYFLVTVG7p1NdhrAC"
+  },
+  {
+    "id": 2,
+    "name": "Octo pack",
+    "price": "0.68",
+    "description": "Get this fire Octopus pack for only $0.69! Includes 3 hot emojis: Forreal, Flooshed, and Sheesh!",
+    "image_url": "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/apple/325/octopus_1f419.png",
+    "filename": "Octopus.zip",
+    "hash": "QmcziHu2z9J5tFHsKihu8AnNHTcdpeXXiHQsiWCZAcCJAL"
+  },
+  {
+    "id": 3,
+    "name": "Moon pack",
+    "price": "4.20",
+    "description": "Ride with us to the moon with our Moon Pack for just $4.20! Includes 3 hot emojis: Forreal, Flooshed, and Sheesh!",
+    "image_url": "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/apple/325/new-moon-face_1f31a.png",
+    "filename": "Emojis.zip",
+    "hash": "QmezEAC9q9bp2XLajHFHe1GSHT7CjASRWkPU2GR7NuHqES"
+  }
+]
