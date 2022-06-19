@@ -4,57 +4,76 @@ import {
   Connection,
   PublicKey,
   Transaction,
-  SystemProgram,
-  LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
+import {
+  createTransferCheckedInstruction,
+  getAssociatedTokenAddress,
+  getMint,
+} from "@solana/spl-token";
 import BigNumber from "bignumber.js";
 import products from "./products.json";
 
-const sellerAddress = `8FnUcGsTntgvvWGiKhvBv8w2TYgbjSBHbitGVesh4Z8u`;
+const usdcAddress = new PublicKey(
+  "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"
+);
+const sellerAddress = "8FnUcGsTntgvvWGiKhvBv8w2TYgbjSBHbitGVesh4Z8u";
 const sellerPublicKey = new PublicKey(sellerAddress);
 
 const createTransaction = async (req, res) => {
   try {
     const { buyer, orderID, itemID } = req.body;
-
     if (!buyer) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Missing buyer address",
       });
     }
 
     if (!orderID) {
-      return res.status(400).json({
-        message: "Missing orderID",
+      res.status(400).json({
+        message: "Missing order ID",
       });
     }
 
     const itemPrice = products.find((item) => item.id === itemID).price;
 
     if (!itemPrice) {
-      return res.status(404).json({
-        message: "Item not found, Please check item ID",
+      res.status(404).json({
+        message: "Item not found. please check item ID",
       });
     }
 
     const bigAmount = BigNumber(itemPrice);
     const buyerPublicKey = new PublicKey(buyer);
+
     const network = WalletAdapterNetwork.Devnet;
     const endpoint = clusterApiUrl(network);
     const connection = new Connection(endpoint);
 
+    const buyerUsdcAddress = await getAssociatedTokenAddress(
+      usdcAddress,
+      buyerPublicKey
+    );
+    const shopUsdcAddress = await getAssociatedTokenAddress(
+      usdcAddress,
+      sellerPublicKey
+    );
     const { blockhash } = await connection.getLatestBlockhash("finalized");
 
-    const txn = new Transaction({
+    const usdcMint = await getMint(connection, usdcAddress);
+
+    const tx = new Transaction({
       recentBlockhash: blockhash,
       feePayer: buyerPublicKey,
     });
 
-    const transferInstruction = SystemProgram.transfer({
-      fromPubkey: buyerPublicKey,
-      lamports: bigAmount.multipliedBy(LAMPORTS_PER_SOL).toNumber(),
-      toPubkey: sellerPublicKey,
-    });
+    const transferInstruction = createTransferCheckedInstruction(
+      buyerUsdcAddress,
+      usdcAddress,
+      shopUsdcAddress,
+      buyerPublicKey,
+      bigAmount.toNumber() * 10 ** (await usdcMint).decimals,
+      usdcMint.decimals
+    );
 
     transferInstruction.keys.push({
       pubkey: new PublicKey(orderID),
@@ -62,22 +81,21 @@ const createTransaction = async (req, res) => {
       isWritable: false,
     });
 
-    txn.add(transferInstruction);
+    tx.add(transferInstruction);
 
-    const serializedTransaction = txn.serialize({
+    const serializedTransaction = tx.serialize({
       requireAllSignatures: false,
     });
+
     const base64 = serializedTransaction.toString("base64");
 
     res.status(200).json({
       transaction: base64,
     });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
 
-    res.status(500).json({
-      error: "error creating txn",
-    });
+    res.status(500).json({ error: "error creating transaction" });
     return;
   }
 };
