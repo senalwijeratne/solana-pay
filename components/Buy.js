@@ -1,16 +1,24 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Keypair, Transaction } from "@solana/web3.js";
+import { findReference, FindReferenceError } from "@solana/pay";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { InfinitySpin } from "react-loader-spinner";
 import IPFSDownload from "./IpfsDownload";
+import { addOrder } from "../lib/api";
+
+const STATUS = {
+  Initial: "Initial",
+  Submitted: "Submitted",
+  Paid: "Paid",
+};
 
 export default function Buy({ itemID }) {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
   const orderID = useMemo(() => Keypair.generate().publicKey, []);
 
-  const [paid, setPaid] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState(STATUS.Initial);
 
   const order = useMemo(
     () => ({
@@ -41,13 +49,45 @@ export default function Buy({ itemID }) {
       console.log(
         `Transaction send" https://solscan.io/tx/${txnHash}?cluster=devnet`
       );
-      setPaid(true);
+      setStatus(STATUS.Submitted);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (status === STATUS.Submitted) {
+      setLoading(true);
+      const interval = setInterval(async () => {
+        try {
+          const result = await findReference(connection, orderID);
+          console.log("Finding txn reference:", result.confirmationStatus);
+          if (
+            result.confirmationStatus === "confirmed" ||
+            result.confirmationStatus === "finalized"
+          ) {
+            clearInterval(interval);
+            setStatus(STATUS.Paid);
+            setLoading(false);
+            addOrder(order);
+            alert("Thank you for your purchase my duuude!");
+          }
+        } catch (e) {
+          if (e instanceof FindReferenceError) {
+            return null;
+          }
+          console.error("Unknown Error", e);
+        } finally {
+          setLoading(false);
+        }
+      }, 1000);
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [status]);
 
   if (!publicKey) {
     return (
@@ -63,7 +103,7 @@ export default function Buy({ itemID }) {
 
   return (
     <div>
-      {paid ? (
+      {status === STATUS.Paid ? (
         <IPFSDownload
           filename="emojis.zip"
           hash="QmWWH69mTL66r3H8P4wUn24t1L5pvdTJGUTKBqT11KCHS5"
