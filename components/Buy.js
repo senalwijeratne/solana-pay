@@ -4,7 +4,7 @@ import { findReference, FindReferenceError } from "@solana/pay";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { InfinitySpin } from "react-loader-spinner";
 import IPFSDownload from "./IpfsDownload";
-import { addOrder } from "../lib/api";
+import { addOrder, hasPurchased, fetchItem } from "../lib/api";
 
 const STATUS = {
   Initial: "Initial",
@@ -17,6 +17,7 @@ export default function Buy({ itemID }) {
   const { publicKey, sendTransaction } = useWallet();
   const orderID = useMemo(() => Keypair.generate().publicKey, []);
 
+  const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(STATUS.Initial);
 
@@ -58,6 +59,17 @@ export default function Buy({ itemID }) {
   };
 
   useEffect(() => {
+    async function checkPurchased() {
+      const purchased = await hasPurchased(publicKey, item);
+      if (purchased) {
+        setStatus(STATUS.Paid);
+        console.log("Address has already purchased this item!");
+      }
+    }
+    checkPurchased();
+  }, [publicKey, itemID]);
+
+  useEffect(() => {
     if (status === STATUS.Submitted) {
       setLoading(true);
       const interval = setInterval(async () => {
@@ -87,6 +99,15 @@ export default function Buy({ itemID }) {
         clearInterval(interval);
       };
     }
+
+    async function getItem(itemID) {
+      const item = await fetchItem(itemID);
+      setItem(item);
+    }
+
+    if (status === STATUS.Paid) {
+      getItem(itemID);
+    }
   }, [status]);
 
   if (!publicKey) {
@@ -98,7 +119,7 @@ export default function Buy({ itemID }) {
   }
 
   if (loading) {
-    return <InfinitySpin color="grey"></InfinitySpin>;
+    return <InfinitySpin color="grey" />;
   }
 
   return (
