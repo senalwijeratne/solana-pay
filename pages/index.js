@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { PublicKey } from "@solana/web3.js";
+import CreateProduct from "../components/CreateProduct";
+import Product from "../components/Product";
+
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import Product from "../components/Product";
 
 // Constants
 const TWITTER_HANDLE = "_buildspace";
@@ -10,6 +11,10 @@ const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 const App = () => {
   const { publicKey } = useWallet();
+  const isOwner = publicKey
+    ? publicKey.toString() === process.env.NEXT_PUBLIC_OWNER_PUBLIC_KEY
+    : false;
+  const [creating, setCreating] = useState(false);
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -49,9 +54,19 @@ const App = () => {
         <header className="header-container">
           <p className="header"> 🌵 Emojis for your Cryptos 🌵</p>
           <p className="sub-text">Issa good deal trust me bro 😏</p>
+
+          {isOwner && (
+            <button
+              className="create-product-button"
+              onClick={() => setCreating(!creating)}
+            >
+              {creating ? "Close" : "Create Product"}
+            </button>
+          )}
         </header>
 
         <main>
+          {creating && <CreateProduct />}
           {publicKey ? renderItemBuyContainer() : renderNotConnectedContainer()}
         </main>
 

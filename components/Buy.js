@@ -32,7 +32,6 @@ export default function Buy({ itemID }) {
 
   const processTransaction = async () => {
     setLoading(true);
-
     const txnResponse = await fetch("../api/createTransaction", {
       method: "POST",
       headers: {
@@ -48,7 +47,7 @@ export default function Buy({ itemID }) {
     try {
       const txnHash = await sendTransaction(txn, connection);
       console.log(
-        `Transaction send" https://solscan.io/tx/${txnHash}?cluster=devnet`
+        `Transaction sent:" https://solscan.io/tx/${txnHash}?cluster=devnet`
       );
       setStatus(STATUS.Submitted);
     } catch (error) {
@@ -60,10 +59,11 @@ export default function Buy({ itemID }) {
 
   useEffect(() => {
     async function checkPurchased() {
-      const purchased = await hasPurchased(publicKey, item);
+      const purchased = await hasPurchased(publicKey, itemID);
       if (purchased) {
         setStatus(STATUS.Paid);
-        console.log("Address has already purchased this item!");
+        const item = await fetchItem(itemID);
+        setItem(item);
       }
     }
     checkPurchased();
@@ -82,15 +82,15 @@ export default function Buy({ itemID }) {
           ) {
             clearInterval(interval);
             setStatus(STATUS.Paid);
-            setLoading(false);
             addOrder(order);
-            alert("Thank you for your purchase my duuude!");
+            setLoading(false);
+            alert("Thank you for your purchase!");
           }
         } catch (e) {
           if (e instanceof FindReferenceError) {
             return null;
           }
-          console.error("Unknown Error", e);
+          console.error("Unknown error", e);
         } finally {
           setLoading(false);
         }
@@ -119,24 +119,20 @@ export default function Buy({ itemID }) {
   }
 
   if (loading) {
-    return <InfinitySpin color="grey" />;
+    return <InfinitySpin color="gray" />;
   }
 
   return (
     <div>
-      {status === STATUS.Paid ? (
-        <IPFSDownload
-          filename="emojis.zip"
-          hash="QmWWH69mTL66r3H8P4wUn24t1L5pvdTJGUTKBqT11KCHS5"
-          cta="Download Pack"
-        ></IPFSDownload>
+      {item ? (
+        <IPFSDownload hash={item.hash} filename={item.filename} />
       ) : (
         <button
           disabled={loading}
           className="buy-button"
           onClick={processTransaction}
         >
-          Buy Now 🠚
+          BUY NOW 🠚
         </button>
       )}
     </div>

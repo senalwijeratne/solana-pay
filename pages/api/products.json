@@ -11,8 +11,8 @@
   {
     "id": 2,
     "name": "Octo pack",
-    "price": "0.69",
-    "description": "Get this fire Octopus pack for only $0.69! Includes 3 hot emojis: Forreal, Flooshed, and Sheesh!",
+    "price": "0.10",
+    "description": "Get this fire Octopus pack for only $0.10! Includes 3 hot emojis: Forreal, Flooshed, and Sheesh!",
     "image_url": "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/apple/325/octopus_1f419.png",
     "filename": "Octopus.zip",
     "hash": "QmcziHu2z9J5tFHsKihu8AnNHTcdpeXXiHQsiWCZAcCJAL"
@@ -20,10 +20,19 @@
   {
     "id": 3,
     "name": "Moon pack",
-    "price": "4.20",
-    "description": "Ride with us to the moon with our Moon Pack for just $4.20! Includes 3 hot emojis: Forreal, Flooshed, and Sheesh!",
+    "price": "1.20",
+    "description": "Ride with us to the moon with our Moon Pack for just $1.20! Includes 3 hot emojis: Forreal, Flooshed, and Sheesh!",
     "image_url": "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/apple/325/new-moon-face_1f31a.png",
     "filename": "Emojis.zip",
     "hash": "QmezEAC9q9bp2XLajHFHe1GSHT7CjASRWkPU2GR7NuHqES"
+  },
+  {
+    "id": 4,
+    "name": "Yeet Pack",
+    "price": "2.50",
+    "image_url": "https://www.seekpng.com/png/full/199-1990054_hitting-a-yeet-crying-laughing-emoji-discord.png",
+    "description": "Get all the yeets fresh off the press! Grab this 3 pack for just $2.50, that's less than $1 PER YEET!",
+    "filename": "yeets.zip",
+    "hash": "QmNLuM6g1HPkEvoZCSHgbLMpuEfukDPjHRV4jCVpYp9G8W"
   }
 ]
